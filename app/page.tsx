@@ -26,15 +26,22 @@ ChartJS.register(
 export default function Dashboard() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   useEffect(() => {
+    if (!supabaseUrl || !supabaseKey) {
+      setError("Environment variables не настроены");
+      setLoading(false);
+      return;
+    }
+
     async function fetchOrders() {
       try {
         const res = await fetch(
-          `${supabaseUrl}/rest/v1/orders?select=*&order=created_at.desc`,
+          `${supabaseUrl}/rest/v1/orders?select=*&order=created_at.desc&limit=100`,
           {
             headers: {
               apikey: supabaseKey,
@@ -43,14 +50,15 @@ export default function Dashboard() {
           }
         );
 
-        if (res.ok) {
-          const data = await res.json();
-          setOrders(data);
-        } else {
-          console.error('Ошибка при загрузке:', res.status);
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
         }
-      } catch (error) {
-        console.error('Ошибка подключения к Supabase:', error);
+
+        const data = await res.json();
+        setOrders(data || []);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "Не удалось загрузить данные из Supabase");
       } finally {
         setLoading(false);
       }
@@ -79,22 +87,18 @@ export default function Dashboard() {
     ],
   };
 
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'top' as const },
-      title: { display: true, text: 'Динамика суммы заказов' },
-    },
-    scales: {
-      y: { beginAtZero: true },
-    },
-  };
-
   if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Загрузка дашборда...</div>;
+  }
+
+  if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-xl">Загрузка дашборда...</p>
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-red-600 mb-4">Ошибка</h2>
+          <p className="text-gray-700">{error}</p>
+          <p className="mt-4 text-sm text-gray-500">Проверь, что добавил Environment Variables в Vercel</p>
+        </div>
       </div>
     );
   }
@@ -105,25 +109,23 @@ export default function Dashboard() {
         <h1 className="text-4xl font-bold text-gray-900 mb-2">📊 GBC Analytics Dashboard</h1>
         <p className="text-gray-600 mb-8">Заказы из RetailCRM • Данные из Supabase</p>
 
-        {/* Статистика */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div className="bg-white rounded-3xl p-8 shadow">
             <p className="text-gray-500">Всего заказов</p>
-            <p className="text-black font-semibold mt-3">{totalOrders}</p>
+            <p className="text-5xl font-semibold mt-3">{totalOrders}</p>
           </div>
           <div className="bg-white rounded-3xl p-8 shadow">
             <p className="text-gray-500">Общая выручка</p>
-            <p className="text-black font-semibold mt-3">{totalRevenue.toLocaleString('ru-RU')} ₸</p>
+            <p className="text-5xl font-semibold mt-3">{totalRevenue.toLocaleString('ru-RU')} ₸</p>
           </div>
           <div className="bg-white rounded-3xl p-8 shadow">
             <p className="text-gray-500">Средний чек</p>
-            <p className="text-black font-semibold mt-3">{avgCheck.toLocaleString('ru-RU')} ₸</p>
+            <p className="text-5xl font-semibold mt-3">{avgCheck.toLocaleString('ru-RU')} ₸</p>
           </div>
         </div>
 
-        {/* График */}
         <div className="bg-white rounded-3xl p-8 shadow h-[480px]">
-          <Line data={chartData} options={options} />
+          <Line data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
         </div>
 
         <p className="text-center text-sm text-gray-500 mt-10">
