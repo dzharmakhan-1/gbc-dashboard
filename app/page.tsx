@@ -33,7 +33,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!supabaseUrl || !supabaseKey) {
-      setError("Environment variables не настроены");
+      setError('Environment variables NEXT_PUBLIC_SUPABASE_URL или NEXT_PUBLIC_SUPABASE_ANON_KEY не настроены в Vercel');
       setLoading(false);
       return;
     }
@@ -43,22 +43,24 @@ export default function Dashboard() {
         const res = await fetch(
           `${supabaseUrl}/rest/v1/orders?select=*&order=created_at.desc&limit=100`,
           {
+            method: 'GET',
             headers: {
               apikey: supabaseKey,
               Authorization: `Bearer ${supabaseKey}`,
-            },
+              'Content-Type': 'application/json',
+            } as HeadersInit,   // ← это фиксит TypeScript ошибку
           }
         );
 
         if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+          throw new Error(`Supabase error: ${res.status} ${res.statusText}`);
         }
 
         const data = await res.json();
-        setOrders(data || []);
+        setOrders(Array.isArray(data) ? data : []);
       } catch (err: any) {
-        console.error(err);
-        setError(err.message || "Не удалось загрузить данные из Supabase");
+        console.error('Fetch error:', err);
+        setError(err.message || 'Не удалось загрузить данные из Supabase');
       } finally {
         setLoading(false);
       }
@@ -87,17 +89,15 @@ export default function Dashboard() {
     ],
   };
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Загрузка дашборда...</div>;
-  }
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-xl">Загрузка дашборда...</div>;
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-red-600 mb-4">Ошибка</h2>
-          <p className="text-gray-700">{error}</p>
-          <p className="mt-4 text-sm text-gray-500">Проверь, что добавил Environment Variables в Vercel</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+        <div className="max-w-md text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Ошибка загрузки</h2>
+          <p className="text-gray-700 mb-6">{error}</p>
+          <p className="text-sm text-gray-500">Убедись, что добавил Environment Variables в Vercel и сделал Redeploy</p>
         </div>
       </div>
     );
