@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GBC Analytics Dashboard
 
-## Getting Started
+**Тестовое задание — AI Tools Specialist**
 
-First, run the development server:
+## Результат
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Работающий дашборд**: [https://project-3yfco-3ouaqrc7j-dzharmakhan-4402s-projects.vercel.app/](https://project-3yfco-3ouaqrc7j-dzharmakhan-4402s-projects.vercel.app/)
+- **GitHub репозиторий**: https://github.com/dzharmakhan-1/gbc-dashboard
+- **Telegram бот**: @boboli_bot (уведомления о заказах > 50 000 ₸)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Что сделано
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Загружено 50 тестовых заказов в RetailCRM через API
+- Настроена синхронизация RetailCRM → Supabase
+- Создан дашборд на Next.js 16 с графиком и ключевой статистикой
+- Реализована система уведомлений в Telegram при заказах свыше 50 000 ₸
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Скрипты Python (папка `/scripts`)
 
-## Learn More
+- `upload_to_crm.py` — загрузка заказов из `mock_orders.json` в RetailCRM
+- `sync_to_supabase.py` — синхронизация заказов в Supabase
+- `telegram_notifications.py` — мониторинг и отправка уведомлений в Telegram
 
-To learn more about Next.js, take a look at the following resources:
+## Промпты, которые использовал (Codex)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Загрузка заказов**:
+   "Напиши Python-скрипт для загрузки массива заказов из mock_orders.json в RetailCRM API v5/orders/upload с правильным форматом items и totalSumm"
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Синхронизация**:
+   "Сделай скрипт, который забирает заказы из RetailCRM и сохраняет их в Supabase через REST API (без тяжёлого клиента)"
 
-## Deploy on Vercel
+3. **Дашборд**:
+   "Создай чистый Next.js 16 дашборд с Chart.js, статистикой (выручка, средний чек) и графиком заказов из Supabase"
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Где застрял и как решил
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Ошибка 460** (`orderType does not exist`) → удалил поле `orderType` из заказов
+- **Проблемы с установкой `supabase` пакета** на Windows → перешёл на чистый `urllib` + REST API
+- **Не нашёл раздел Webhooks** в RetailCRM → сделал отдельный мониторинговый скрипт `telegram_notifications.py`
+- **404 на Vercel** → исправил Framework Preset на Next.js + улучшил обработку ошибок
+- **Python/pip проблемы** → использовал встроенные модули
+
+Всё тестовое задание выполнено с помощью Codex.
+
+## Технологии
+
+- RetailCRM API v5
+- Supabase (Postgres + REST)
+- Next.js 16 (App Router) + TypeScript + Tailwind
+- Chart.js + react-chartjs-2
+- Vercel
+
+Готов к обсуждению и дальнейшим задачам!
