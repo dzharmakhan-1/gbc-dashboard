@@ -4,22 +4,36 @@
 
 ## Результат
 
-- **Работающий дашборд**: [https://project-3yfco-3ouaqrc7j-dzharmakhan-4402s-projects.vercel.app/](https://project-3yfco-3ouaqrc7j-dzharmakhan-4402s-projects.vercel.app/)
-- **GitHub репозиторий**: https://github.com/dzharmakhan-1/gbc-dashboard
-- **Telegram бот**: @boboli_bot (уведомления о заказах > 50 000 ₸)
+- **Дашборд (Vercel)**: [https://project-3yfco-3ouaqrc7j-dzharmakhan-4402s-projects.vercel.app/](https://project-3yfco-3ouaqrc7j-dzharmakhan-4402s-projects.vercel.app/)
+- **GitHub**: https://github.com/dzharmakhan-1/gbc-dashboard
+- **Telegram бот**: @boboli_bot (уведомления при заказах > 50 000 ₸)
 
 ## Что сделано
 
-- Загружено 50 тестовых заказов в RetailCRM через API
+- Загружены 50 тестовых заказов в RetailCRM через API
 - Настроена синхронизация RetailCRM → Supabase
-- Создан дашборд на Next.js 16 с графиком и ключевой статистикой
-- Реализована система уведомлений в Telegram при заказах свыше 50 000 ₸
+- Создан дашборд на Next.js 16 с графиком и статистикой
+- Реализована система уведомлений в Telegram
 
-## Скрипты Python (папка `/scripts`)
+## Структура проекта
 
-- `upload_to_crm.py` — загрузка заказов из `mock_orders.json` в RetailCRM
-- `sync_to_supabase.py` — синхронизация заказов в Supabase
-- `telegram_notifications.py` — мониторинг и отправка уведомлений в Telegram
+- `app/` — Next.js дашборд
+- `scripts/` — Python скрипты
+  - `upload_to_crm.py` — загрузка заказов в RetailCRM
+  - `sync_to_supabase.py` — синхронизация в Supabase
+  - `telegram_notifications.py` — уведомления в Telegram
+
+## Настройка окружения
+
+1. Скопируйте файл `.env.example` в `.env`
+2. Заполните реальными ключами
+
+## Как запустить уведомления
+
+```bash
+cd scripts
+python telegram_notifications.py
+```
 
 ## Промпты, которые использовал (Codex)
 
